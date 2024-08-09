@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,9 +61,22 @@ public class HomeController {
 	}
 	
 	//Update Data By Id
-	@PutMapping("/updateData")
-	public Books updateBookData(@RequestBody Books books) {
-		booksRepository.save(books);
-		return books;
+	@PutMapping("/updateBook/{bookid}")
+	public ResponseEntity<Books> updateProduct(@PathVariable Integer bookid, @RequestBody Books updatedBook) {
+	    Optional<Books> existingBookOpt = booksRepository.findById(bookid);
+
+	    if (existingBookOpt.isPresent()) {
+	        Books existingBook = existingBookOpt.get();
+
+	        // Update the fields of the existing product with values from the updated product
+	        existingBook.setBookname(updatedBook.getBookname());
+	        existingBook.setDescription(updatedBook.getDescription());
+	        existingBook.setPrice(updatedBook.getPrice());
+	        
+	        booksRepository.save(existingBook);
+	        return ResponseEntity.ok(existingBook);
+	    } else {
+	        return ResponseEntity.notFound().build();
+	    }
 	}
 }
